@@ -2,10 +2,12 @@ import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
+import java.lang.Math;
+
 public class PercolationStats {
 
-    private Percolation per;
     private int[] timesToPercolate;
+    
     private int nLength;
     private int nLength2;
     private int trialsn;
@@ -20,6 +22,8 @@ public class PercolationStats {
         nLength2 = nLength * nLength;
         trialsn = trials;
         timesToPercolate = new int[trials];
+        
+        Percolation per;
 
         // Definition says, choose a tile uniformly at random, so do so
         for (int i = 0; i < trials; i++) {
@@ -60,13 +64,13 @@ public class PercolationStats {
 
     // low endpoint of 95% confidence interval
     public double confidenceLo() {
-        double lo = mean() - 1.96 * stddev() / java.lang.Math.sqrt((double) trialsn);
+        double lo = mean() - 1.96 * stddev() / Math.sqrt((double) trialsn);
         return lo;
     }
 
     // high endpoint of 95% confidence interval
     public double confidenceHi() {
-        double hi = mean() + 1.96 * stddev() / java.lang.Math.sqrt((double) trialsn);
+        double hi = mean() + 1.96 * stddev() / Math.sqrt((double) trialsn);
         return hi;
     }
 
@@ -76,14 +80,6 @@ public class PercolationStats {
         int t = StdIn.readInt();
 
         PercolationStats perstats = new PercolationStats(n, t);
-
-        // MessageFormat mean = new MessageFormat("mean = {0}");
-        // MessageFormat stdd = new MessageFormat("stddev = {0}");
-        // MessageFormat intr = new MessageFormat("95% confidence interval =
-        // {0}, {1}");
-
-        // Object[] argsInterval = {perstats.confidenceLo(),
-        // perstats.confidenceHi()};
 
         System.out.println(String.format("mean                    = %1.10f", perstats.mean()));
         System.out.println(String.format("stddev                  = %1.10f", perstats.stddev()));
