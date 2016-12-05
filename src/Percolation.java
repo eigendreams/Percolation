@@ -1,8 +1,4 @@
 /**
- * 
- */
-
-/**
  * @author uidp7273
  *
  */
@@ -17,8 +13,15 @@ public class Percolation {
     // means that cell is blocked
 
     // Everything is going to get transformed to a linear array
-    private boolean[] state;
-    private WeightedQuickUnionUF wufObject;
+    
+    // To avoid backwash I will divide in two sections, a top and
+    // a bottom, and check for each
+    private boolean[] stateTop;
+    private boolean[] stateBottom;
+    
+    private WeightedQuickUnionUF wufObjectTop;
+    private WeightedQuickUnionUF wufObjectBottom;
+    
     private int nLength;
 
     // create n-by-n grid, with all sites blocked
@@ -30,15 +33,19 @@ public class Percolation {
 
         // Add start and finish points to list of cells
         nLength = n;
-        wufObject = new WeightedQuickUnionUF(n * (n + 2));
-        state = new boolean[n * (n + 2)];
+        
+        stateTop    = new boolean[n * (n + 1)];
+        stateBottom = new boolean[2 * n];
+        
+        wufObjectTop    = new WeightedQuickUnionUF(n * (n + 1));
+        wufObjectBottom = new WeightedQuickUnionUF(2 * n);
 
         // We have to make some connections and openings
         // at initialization though
         for (int i = 0; i < nLength; i++) {
-            // col goes from 1 to n
-            openInternal(0, i + 1);
-            openInternal(nLength + 1, i + 1);
+            // First on top, which is our main object
+            openInternal( 0, i, stateTop, wufObjectTop );
+            openInternal( 1, i, stateBottom, wufObjectBottom );
         }
     }
 
@@ -48,11 +55,19 @@ public class Percolation {
         if ((row < 1) || (col < 1) || (row > nLength) || (col > nLength)) {
             throw new java.lang.IndexOutOfBoundsException();
         }
-
-        openInternal(row, col);
+        
+        // First row is 'special' for top, so is always in range
+        // However col must be transformed to proper indexes
+        openInternal(row, col - 1, stateTop, wufObjectTop);
+        // Check if we are in range for bottom part to know if to open bottom
+        // row goes from 1 to n, and we have indexes from 0 to n
+        if ( row == nLength ) {
+            // We are in bottom row, also open in bottom in 0 row
+            openInternal( 0, col - 1, stateBottom, wufObjectBottom );
+        }
     }
 
-    private void openInternal(int row, int col) {
+    private void openInternal(int row, int col, boolean[] state, WeightedQuickUnionUF uf) {
         // We need to recover original index
         int linIndex = getLinearIndex(row, col, nLength);
         // We have to check if it is opened or not against state
@@ -74,7 +89,7 @@ public class Percolation {
             int upIndex = getLinearIndex(row - 1, col, nLength);
             int downIndex = getLinearIndex(row + 1, col, nLength);
             // However side indexes do need limit checks, this is done in
-            // function
+            // function, so this is safe
             int leftIndex = getLinearIndex(row, col - 1, nLength);
             int rightIndex = getLinearIndex(row, col + 1, nLength);
 
@@ -96,11 +111,10 @@ public class Percolation {
                 if (index != linIndex) {
                     if (state[index]) {
                         // Side tile is opened! Make the union
-                        wufObject.union(linIndex, index);
+                        uf.union(linIndex, index);
                     }
                 }
             }
-
         }
     }
 
@@ -111,10 +125,10 @@ public class Percolation {
             throw new java.lang.IndexOutOfBoundsException();
         }
 
-        return isOpenInternal(row, col);
+        return isOpenInternal(row, col - 1, stateTop, wufObjectTop);
     }
 
-    private boolean isOpenInternal(int row, int col) {
+    private boolean isOpenInternal(int row, int col, boolean[] state, WeightedQuickUnionUF uf) {
         int index = getLinearIndex(row, col, nLength);
         return state[index];
     }
@@ -125,7 +139,7 @@ public class Percolation {
             throw new java.lang.IndexOutOfBoundsException();
         }
 
-        return isFullInternal(row, col);
+        return isFullInternal(row, col - 1);
     }
 
     // is site (row, col) full?
@@ -133,45 +147,39 @@ public class Percolation {
         int index = getLinearIndex(row, col, nLength);
 
         boolean full = false;
-
-        if (isOpenInternal(row, col)) {
-            // Check if site is connected to top
-            int firstIndex = getLinearIndex(0, 1, nLength);
-            if (wufObject.connected(firstIndex, index)) {
-                full = true;
-            }
-        }
+        
         return full;
     }
 
     // does the system percolate?
     public boolean percolates() {
         // We only need to check against the first and last elements
-        int firstIndex = getLinearIndex(0, 1, nLength);
-        int lastIndex = getLinearIndex(nLength + 1, nLength, nLength);
+        //int firstIndex = getLinearIndex(0, 1, nLength);
+        //int lastIndex = getLinearIndex(nLength + 1, nLength, nLength);
 
-        return wufObject.connected(firstIndex, lastIndex);
+        //return wufObjectTop.connected(firstIndex, lastIndex);
+        
+        return false;
     }
 
     // Memory map is row row row ... row, with first and
     // last rows the 'special' rows for landing
     private int getLinearIndex(int row, int col, int n) {
-        // row can go from 0 to n + 1, and valid for context are 1 to n
-        // However col can go from 1 to n, so substract 1 to get 0 to n - 1
-        col = col - 1;
-        // and do limits check, as saturation
+        // Do limits check, as saturation
+        
+        // col must go from 0 to n - 1
         if (col <= 0) {
             col = 0;
         }
         if (col >= n) {
             col = n - 1;
         }
-        // Also check row
+        // Also check row, but this can go up to n
         if (row <= 0) {
             row = 0;
         }
-        if (row >= n + 1) {
-            row = n + 1;
+        if (row >= n) {
+            row = n;
         }
         // this one is classical
         return n * row + col;

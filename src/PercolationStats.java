@@ -30,13 +30,14 @@ public class PercolationStats {
 
             while (true) {
                 // Get index of element that we try to set open, one by one
-                int p = StdRandom.uniform(n);
-                int q = StdRandom.uniform(n);
+             // These go from 0 to n - 1, change to 1 to n
+                int p = StdRandom.uniform(n) + 1;
+                int q = StdRandom.uniform(n) + 1;
 
                 // This should preserve uniformity of distribution
-                if (!per.isOpen(p + 1, q + 1)) {
+                if (!per.isOpen(p, q)) {
                     // Open tile chosen at random
-                    per.open(p + 1, q + 1);
+                    per.open(p, q);
 
                     // Increase counter
                     timesToPercolate[i]++;
