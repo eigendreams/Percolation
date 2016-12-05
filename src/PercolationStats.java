@@ -12,7 +12,7 @@ public class PercolationStats {
 
     public PercolationStats(int n, int trials) {
         // Check bounds
-        if ((n < 0) || (trials < 0)) {
+        if ((n < 1) || (trials < 1)) {
             throw new java.lang.IllegalArgumentException();
         }
 

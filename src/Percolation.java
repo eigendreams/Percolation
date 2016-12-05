@@ -24,7 +24,7 @@ public class Percolation {
     // create n-by-n grid, with all sites blocked
     public Percolation(int n) {
         // Check bounds
-        if (n < 0) {
+        if (n < 1) {
             throw new java.lang.IllegalArgumentException();
         }
 
@@ -94,7 +94,7 @@ public class Percolation {
                 // Just in case, check so we dont make an union with self, also
                 // saves ticks
                 if (index != linIndex) {
-                    if (state[index] == true) {
+                    if (state[index]) {
                         // Side tile is opened! Make the union
                         wufObject.union(linIndex, index);
                     }
