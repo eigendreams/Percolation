@@ -5,7 +5,7 @@ import edu.princeton.cs.algs4.StdStats;
 public class PercolationStats {
 
     private int[] timesToPercolate;
-    
+
     private int nLength;
     private int nLength2;
     private int trialsn;
@@ -19,8 +19,9 @@ public class PercolationStats {
         nLength = n;
         nLength2 = nLength * nLength;
         trialsn = trials;
+
         timesToPercolate = new int[trials];
-        
+
         Percolation per;
 
         // Definition says, choose a tile uniformly at random, so do so
@@ -30,7 +31,6 @@ public class PercolationStats {
 
             while (true) {
                 // Get index of element that we try to set open, one by one
-             // These go from 0 to n - 1, change to 1 to n
                 int p = StdRandom.uniform(n) + 1;
                 int q = StdRandom.uniform(n) + 1;
 
