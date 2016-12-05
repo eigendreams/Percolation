@@ -2,8 +2,6 @@ import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
-import java.lang.Math;
-
 public class PercolationStats {
 
     private int[] timesToPercolate;
